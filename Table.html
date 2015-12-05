@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+		<meta charset='UTF-8'>
+		<title>Best Website Ever</title>
+	<body>
+		<link rel="stylesheet" src="css/main.css">
+		<script src="jquery-1.11.3.js"></script>
+		<script type="text/javascript" src="dist/paper-full.js"></script>
+		<script type="text/paperscript" canvas="myCanvas">
+			
+			var Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+				
+			function mysteryTable(n){
+
+				function shuffle(Array){
+					var randArray = [];
+					var newArray = [];
+					var temp;
+
+					for(i = 0; i < Array.length; i++){
+						temp = Math.floor(Math.random() * Array.length);
+						if(randArray.indexOf(temp) === -1)
+							randArray.push(temp);
+						else
+							i--;
+					}
+
+					for(i = 0; i < Array.length; i++){
+						newArray.push(Array[randArray[i]]);
+					}
+					return newArray;
+				}
+				
+
+				function Identity(){
+					var rIdentity = "R";
+					for(i = 1; i < n; i++)
+						rIdentity += 'R';
+					
+					return rIdentity;
+				}
+
+				function replaceAll(String, oldString, newString){
+					return String.replace(new RegExp(oldString, 'g'), newString);
+				}
+
+				function Simplify(Resultant){
+					var Temp;
+					while(true){
+						Temp = Resultant;
+						
+						Resultant = replaceAll(Resultant, "undefined", '1');
+						Resultant = replaceAll(Resultant, '1', "");
+						Resultant = replaceAll(Resultant, "FF", '1');
+						Resultant = replaceAll(Resultant , "RFR", 'F');
+						Resultant = replaceAll(Resultant, 'FRF', "RR");
+						Resultant = replaceAll(Resultant, "RF" , "FRR");
+						Resultant = replaceAll(Resultant, rIdentity, '1');
+						
+						if(Resultant === Temp)
+							break;
+					}	
+
+					if(Resultant === ''){
+						Resultant = '1';
+					}
+
+					return Resultant;
+				}
+				
+				var rIdentity = Identity();
+				var Symmetries = ["1", "F", "R"];
+				var Resultant;
+				for(i = 0; i < 2*n - 1; i++){
+					for(k = 0; k < 2*n - 1; k++){
+						Resultant = Symmetries[i] + Symmetries[k];
+						
+						Resultant = Simplify(Resultant);
+
+						if(Symmetries.indexOf(Resultant) === -1 && Resultant !== "")
+							Symmetries.push(Resultant);
+						
+					}
+				}	
+				
+				var c = document.getElementById("myCanvas");
+				var context = c.getContext("2d");
+				var height = $(document).height() - 20;
+				var width = $(document).width() - 20;
+				var tileNum = 2 * n + 1;
+				var boxWidth = width/tileNum;
+				var boxHeight = height/tileNum;
+				var tempSym = [];
+				var Table = [];
+				var mysteryTable = [];
+				var Key = {};
+				view.viewSize.width = width;
+				view.viewSize.height = height;
+
+				function drawGrid(){
+					for(i = 0; i < tileNum + 1; i++){
+						var lineX = new Path.Line(new Point(0, i * boxHeight), new Point(tileNum  * boxHeight, i * boxHeight));
+						var lineY = new Path.Line(new Point(i * boxHeight, 0), new Point(i * boxHeight, tileNum* boxHeight));
+						lineX.strokeColor = 'black';	
+						lineY.strokeColor = 'black';
+					}
+
+					function onResize(event){
+						height = $(document).height();
+						width = $(document).width();
+						view.viewSize.width = width;
+						view.viewSize.height = height;
+					}
+				}
+
+				function fillTable(){
+					Table.push(Symmetries);
+
+					for(i = 0; i < tileNum - 1; i++){
+						var symText = new PointText();
+						symText.point = new Point((i + 1) * boxHeight + boxHeight/2, boxHeight - boxHeight/2);
+						symText.justification = 'center';
+						symText.content = Symmetries[i];
+						symText.fillColor = 'black';
+						symText.fontWeight = 'bold';
+						symText.fontSize = '20';
+					}
+
+					for(i = 0; i < tileNum; i++){
+						
+							var symText = new PointText();
+							symText.point = new Point(boxHeight/2, (i + 2) * boxHeight - boxHeight/2);
+							symText.justification = 'center';
+							symText.content = Symmetries[i];
+							symText.fillColor = 'black';
+							symText.fontWeight = 'bold';
+							symText.fontSize = '20';
+					}		
+				}
+
+				function Randomize(){
+					Alphabet = Alphabet.slice(0, 2*n);
+					Alphabet.split("");
+					Alphabet = shuffle(Alphabet);
+					
+					for(i = 0; i < 2 * n; i++){
+						Key[Symmetries[i]] = {value: Alphabet[i]};
+					}
+				}
+				Randomize();
+
+				function addInputs(){
+					for(i = 1; i < tileNum; i++){
+						for(k = 1; k < tileNum; k++){
+							createTextBox();
+						}
+					}
+				}
+
+				function createTextBox(){
+					var textBox = document.createElement("input");
+
+					textBox.style.position = "absolute";
+					textBox.style.textAlign = "center";
+					textBox.style.width = boxHeight - 4 + "px";
+					textBox.style.height = boxHeight - 6 + "px";
+					textBox.style.left = k * boxHeight + 8 + "px";
+					textBox.style.top = (i * boxHeight) + 8 + "px";
+					textBox.style.fontSize = "20pt";
+					textBox.maxLength = "6";
+					textBox.type = "text";
+					textBox.id = 'text' + i + k;
+					//textBox.value = " ";
+					textBox.onkeypress = function(e){
+					    if (!e) e = window.event;
+					    var keyCode = e.keyCode || e.which;
+					    if (keyCode == '13'){
+					     	checkAnswer();
+					      return false;
+					    }
+ 				 	}	
+					//textBox.onChange = checkAnswer();
+					
+					document.body.appendChild(textBox);
+
+					//myOnChange = new Function("checkAnswer()");
+					//textBox.onChange = checkAnswer();
+				}
+				
+				drawGrid();
+				fillTable();
+				addInputs();
+
+				function checkAnswer(){
+					for(i = 0; i < tileNum-1; i++){
+						for(k = 0; k < tileNum-1; k++){
+							if(document.getElementById('text' + (i+1) + (k+1)).value === Simplify(Symmetries[i] + Symmetries[k])){
+								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "lime";
+							}
+							else if(document.getElementById('text' + (i+1) + (k+1)).value === ""){
+								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "dodgerblue";
+							}
+							else{
+								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "red";
+							}	
+						}
+					}
+				}
+
+				//checkAnswer();
+			}
+
+
+			var myTable = mysteryTable(3);
+
+			
+ 		
+		
+	</script>
+</head>
+	<body>
+		<canvas id="myCanvas" resize></canvas>
+	</body>
+</html>
