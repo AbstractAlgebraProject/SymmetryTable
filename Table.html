@@ -8,13 +8,11 @@
 		<script src="jquery-1.11.3.js"></script>
 		<script type="text/javascript" src="dist/paper-full.js"></script>
 		<script type="text/paperscript" canvas="myCanvas">
-			
-			var Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 				
-			function mysteryTable(n){
+			function symmetryTable(n){
 
-				function shuffle(Array){
-					var randArray = [];
+				function shuffle(Array){										//unimplemented function to shuffle arrays
+					var randArray = [];											//could be used to change order of table elements?
 					var newArray = [];
 					var temp;
 
@@ -33,7 +31,7 @@
 				}
 				
 
-				function Identity(){
+				function Identity(){											//finds rotational symmetry
 					var rIdentity = "R";
 					for(i = 1; i < n; i++)
 						rIdentity += 'R';
@@ -41,16 +39,16 @@
 					return rIdentity;
 				}
 
-				function replaceAll(String, oldString, newString){
-					return String.replace(new RegExp(oldString, 'g'), newString);
-				}
+				function replaceAll(String, oldString, newString){				//function doesn't exist in javascript so i made it for convenience
+					return String.replace(new RegExp(oldString, 'g'), newString); 
+				}																//replaces all instances of oldstring with newstring
 
 				function Simplify(Resultant){
 					var Temp;
 					while(true){
-						Temp = Resultant;
+						Temp = Resultant;										//stores the original "unsimplified" state 
 						
-						Resultant = replaceAll(Resultant, "undefined", '1');
+						Resultant = replaceAll(Resultant, "undefined", '1');	//uses associativity to replace substrings until it cannot be changed anymore
 						Resultant = replaceAll(Resultant, '1', "");
 						Resultant = replaceAll(Resultant, "FF", '1');
 						Resultant = replaceAll(Resultant , "RFR", 'F');
@@ -58,11 +56,11 @@
 						Resultant = replaceAll(Resultant, "RF" , "FRR");
 						Resultant = replaceAll(Resultant, rIdentity, '1');
 						
-						if(Resultant === Temp)
+						if(Resultant === Temp)									//if it hasn't been altered this loop then stop trying
 							break;
 					}	
 
-					if(Resultant === ''){
+					if(Resultant === ''){													
 						Resultant = '1';
 					}
 
@@ -70,35 +68,33 @@
 				}
 				
 				var rIdentity = Identity();
-				var Symmetries = ["1", "F", "R"];
-				var Resultant;
+				var Symmetries = ["1", "F", "R"];						//begins with 1, F and R
+				var Resultant;											//constructs all other symmetries by performing every combination
+
 				for(i = 0; i < 2*n - 1; i++){
 					for(k = 0; k < 2*n - 1; k++){
-						Resultant = Symmetries[i] + Symmetries[k];
+						Resultant = Symmetries[i] + Symmetries[k];		//adds two symmetries together
 						
-						Resultant = Simplify(Resultant);
+						Resultant = Simplify(Resultant);				//calls simplify method
 
-						if(Symmetries.indexOf(Resultant) === -1 && Resultant !== "")
+						if(Symmetries.indexOf(Resultant) === -1 && Resultant !== "")		//if resultant exists and is not already in symmetry array then add it
 							Symmetries.push(Resultant);
 						
 					}
 				}	
 				
-				var c = document.getElementById("myCanvas");
-				var context = c.getContext("2d");
-				var height = $(document).height() - 20;
+				var c = document.getElementById("myCanvas");			//canvas
+				var context = c.getContext("2d");						//2d drawing
+				var height = $(document).height() - 20;					//width and height of page
 				var width = $(document).width() - 20;
-				var tileNum = 2 * n + 1;
-				var boxWidth = width/tileNum;
-				var boxHeight = height/tileNum;
-				var tempSym = [];
-				var Table = [];
-				var mysteryTable = [];
-				var Key = {};
+				var tileNum = 2 * n + 1;								//number of boxes in a row
+				var boxWidth = width/tileNum;							//width of box in pixels
+				var boxHeight = height/tileNum;							//height of box in pixels
+				
 				view.viewSize.width = width;
 				view.viewSize.height = height;
 
-				function drawGrid(){
+				function drawGrid(){									//draws gridlines
 					for(i = 0; i < tileNum + 1; i++){
 						var lineX = new Path.Line(new Point(0, i * boxHeight), new Point(tileNum  * boxHeight, i * boxHeight));
 						var lineY = new Path.Line(new Point(i * boxHeight, 0), new Point(i * boxHeight, tileNum* boxHeight));
@@ -115,42 +111,28 @@
 				}
 
 				function fillTable(){
-					Table.push(Symmetries);
-
-					for(i = 0; i < tileNum - 1; i++){
+					for(i = 0; i < tileNum - 1; i++){					//adds row of symmetries
 						var symText = new PointText();
 						symText.point = new Point((i + 1) * boxHeight + boxHeight/2, boxHeight - boxHeight/2);
-						symText.justification = 'center';
+						symText.justification = 'center';				//sets position to be centered at its point instead of top left
 						symText.content = Symmetries[i];
 						symText.fillColor = 'black';
 						symText.fontWeight = 'bold';
 						symText.fontSize = '20';
 					}
 
-					for(i = 0; i < tileNum; i++){
-						
-							var symText = new PointText();
-							symText.point = new Point(boxHeight/2, (i + 2) * boxHeight - boxHeight/2);
-							symText.justification = 'center';
-							symText.content = Symmetries[i];
-							symText.fillColor = 'black';
-							symText.fontWeight = 'bold';
-							symText.fontSize = '20';
+					for(i = 0; i < tileNum; i++){						//adds column of symmetries
+						var symText = new PointText();
+						symText.point = new Point(boxHeight/2, (i + 2) * boxHeight - boxHeight/2);
+						symText.justification = 'center';
+						symText.content = Symmetries[i];
+						symText.fillColor = 'black';
+						symText.fontWeight = 'bold';
+						symText.fontSize = '20';
 					}		
 				}
 
-				function Randomize(){
-					Alphabet = Alphabet.slice(0, 2*n);
-					Alphabet.split("");
-					Alphabet = shuffle(Alphabet);
-					
-					for(i = 0; i < 2 * n; i++){
-						Key[Symmetries[i]] = {value: Alphabet[i]};
-					}
-				}
-				Randomize();
-
-				function addInputs(){
+				function addInputs(){									//calls createTextBox method
 					for(i = 1; i < tileNum; i++){
 						for(k = 1; k < tileNum; k++){
 							createTextBox();
@@ -158,7 +140,7 @@
 					}
 				}
 
-				function createTextBox(){
+				function createTextBox(){								//makes textbox dynamically
 					var textBox = document.createElement("input");
 
 					textBox.style.position = "absolute";
@@ -171,31 +153,18 @@
 					textBox.maxLength = "6";
 					textBox.type = "text";
 					textBox.id = 'text' + i + k;
-					//textBox.value = " ";
-					textBox.onkeypress = function(e){
-					    if (!e) e = window.event;
-					    var keyCode = e.keyCode || e.which;
-					    if (keyCode == '13'){
-					     	checkAnswer();
-					      return false;
-					    }
- 				 	}	
-					//textBox.onChange = checkAnswer();
 					
 					document.body.appendChild(textBox);
-
-					//myOnChange = new Function("checkAnswer()");
-					//textBox.onChange = checkAnswer();
 				}
 				
 				drawGrid();
 				fillTable();
 				addInputs();
 
-				function checkAnswer(){
+				view.onFrame = function(event){									//checks all inputs for correctness/incorrectness
 					for(i = 0; i < tileNum-1; i++){
 						for(k = 0; k < tileNum-1; k++){
-							if(document.getElementById('text' + (i+1) + (k+1)).value === Simplify(Symmetries[i] + Symmetries[k])){
+							if((document.getElementById('text' + (i+1) + (k+1)).value).toUpperCase() === Simplify(Symmetries[i] + Symmetries[k])){
 								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "lime";
 							}
 							else if(document.getElementById('text' + (i+1) + (k+1)).value === ""){
@@ -212,11 +181,8 @@
 			}
 
 
-			var myTable = mysteryTable(3);
+			var myTable = symmetryTable(3);
 
-			
- 		
-		
 	</script>
 </head>
 	<body>
