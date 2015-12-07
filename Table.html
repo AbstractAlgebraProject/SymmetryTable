@@ -49,11 +49,23 @@
 						Temp = Resultant;										//stores the original "unsimplified" state 
 						
 						Resultant = replaceAll(Resultant, "undefined", '1');	//uses associativity to replace substrings until it cannot be changed anymore
-						Resultant = replaceAll(Resultant, '1', "");
+						if(Resultant != Temp)									//all these stupid if statements make it 100% correct even if it's not a triangle
+							continue;											//i wish there was a better way
+						Resultant = replaceAll(Resultant, '1', "");				//"continue" statement goes back to top of loop
+						if(Resultant != Temp)
+							continue;
 						Resultant = replaceAll(Resultant, "FF", '1');
+						if(Resultant != Temp)
+							continue;
 						Resultant = replaceAll(Resultant , "RFR", 'F');
+						if(Resultant != Temp)
+							continue;
 						Resultant = replaceAll(Resultant, 'FRF', "RR");
+						if(Resultant != Temp)
+							continue;
 						Resultant = replaceAll(Resultant, "RF" , "FRR");
+						if(Resultant != Temp)
+							continue;
 						Resultant = replaceAll(Resultant, rIdentity, '1');
 						
 						if(Resultant === Temp)									//if it hasn't been altered this loop then stop trying
@@ -181,7 +193,7 @@
 			}
 
 
-			var myTable = symmetryTable(3);
+			var myTable = symmetryTable(4);
 
 	</script>
 </head>
