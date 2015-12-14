@@ -57,9 +57,7 @@
 						Resultant = replaceAll(Resultant , "RFR", 'F');
 						
 						Resultant = replaceAll(Resultant, "RF" , flip.concat(rInverse));
-						
 						Resultant = replaceAll(Resultant, 'FRF', rInverse);
-						
 						
 						Resultant = replaceAll(Resultant, rIdentity, '1');
 						
@@ -161,7 +159,7 @@
 					textBox.style.fontSize = "20pt";
 					textBox.maxLength = "6";
 					textBox.type = "text";
-					textBox.id = 'text' + i + k;
+					textBox.id = 'text' + i + ", " + k;
 					
 					document.body.appendChild(textBox);
 				}
@@ -173,15 +171,20 @@
 				view.onFrame = function(event){									//checks all inputs for correctness/incorrectness
 					for(i = 0; i < tileNum-1; i++){
 						for(k = 0; k < tileNum-1; k++){
-							if((document.getElementById('text' + (i+1) + (k+1)).value).toUpperCase() === Simplify(Symmetries[i] + Symmetries[k])){
-								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "lime";
+							if((document.getElementById('text' + (i+1) + ', ' + (k+1)).value).toUpperCase() === Simplify(Symmetries[i] + Symmetries[k])){
+								document.getElementById('text' + (i+1) + ', ' + (k+1)).style.backgroundColor = "lime";
 							}
-							else if(document.getElementById('text' + (i+1) + (k+1)).value === ""){
-								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "dodgerblue";
+							else if(document.getElementById('text' + (i+1) + ', ' + (k+1)).value === ""){
+								document.getElementById('text' + (i+1) + ', ' + (k+1)).style.backgroundColor = "dodgerblue";
 							}
 							else{
-								document.getElementById('text' + (i+1) + (k+1)).style.backgroundColor = "red";
+								document.getElementById('text' + (i+1) + ', ' + (k+1)).style.backgroundColor = "red";
 							}	
+						}
+					}
+					for(i = 0; i < tileNum-1; i++){
+						for(k = 0; k < tileNum-1; k++){
+							document.getElementById('text' + (i+1) + ', ' + (k+1)).value = document.getElementById('text' + (i+1) + ', ' + (k+1)).value.toUpperCase();
 						}
 					}
 				}
@@ -190,7 +193,7 @@
 			}
 
 
-			var myTable = symmetryTable(5);
+			var myTable = symmetryTable(3);
 			
 
 	</script>
